@@ -77,6 +77,11 @@ footer { padding: 24px; color: var(--muted); text-align: center; border-top: 1px
 .funciones-vacias > span { color: var(--primario); font-size: 28px; }
 .funciones-vacias strong { color: var(--texto); }
 .funciones-vacias p { margin: -5px 0 0; font-size: 12px; }
+.historial-ventas-dashboard { margin-top: 15px; padding: 22px 24px; border: 1px solid var(--borde); border-radius: 20px; background: var(--panel); box-shadow: var(--sombra); }
+.historial-vacio { display: flex; align-items: center; justify-content: center; gap: 14px; min-height: 115px; color: var(--muted); text-align: left; border: 1px dashed #d6d8e2; border-radius: 14px; background: #fafafd; }
+.historial-vacio > span { font-size: 28px; }
+.historial-vacio strong { color: var(--texto); }
+.historial-vacio p { margin: 5px 0 0; font-size: 12px; }
 
 .modulo { animation: aparecer .24s ease; }
 @keyframes aparecer { from { opacity: 0; transform: translateY(8px); } }
@@ -93,6 +98,12 @@ footer { padding: 24px; color: var(--muted); text-align: center; border-top: 1px
 .campo input:disabled { color: var(--muted); background: #f0f1f5; }
 .campo-error input, .campo-error select { border-color: var(--peligro); }
 .campo small { color: var(--peligro); font-size: 11px; }
+.subtitulo-formulario { display: flex; align-items: center; gap: 10px; margin: 3px 0 15px; padding-bottom: 10px; border-bottom: 1px solid var(--borde); }
+.subtitulo-formulario > span { display: grid; flex: 0 0 34px; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--primario-suave); }
+.subtitulo-formulario strong, .subtitulo-formulario small { display: block; }
+.subtitulo-formulario strong { font-size: 13px; }
+.subtitulo-formulario small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+.datos-funcion-subtitulo { margin-top: 23px; }
 .boton-primario, .boton-secundario { min-height: 42px; padding: 0 18px; font-weight: 800; border-radius: 10px; }
 .boton-primario { margin-top: 20px; color: white; border: 1px solid var(--primario); background: var(--primario); }
 .boton-primario:hover { background: var(--primario-oscuro); }

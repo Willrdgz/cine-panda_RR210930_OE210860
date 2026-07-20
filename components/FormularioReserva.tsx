@@ -20,8 +20,12 @@ export default function FormularioReserva() {
   const [salaId, setSalaId] = useState("");
   const [funcionId, setFuncionId] = useState("");
   const [cantidad, setCantidad] = useState(1);
+  const [nombreCliente, setNombreCliente] = useState("");
+  const [emailCliente, setEmailCliente] = useState("");
+  const [telefonoCliente, setTelefonoCliente] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
+  const [erroresCliente, setErroresCliente] = useState<Record<string, string>>({});
 
   const pelicula = peliculas.find(({ codigo }) => codigo === peliculaCodigo);
   const funcionesPelicula = funciones.filter(
@@ -50,6 +54,24 @@ export default function FormularioReserva() {
   const confirmar = (evento: FormEvent) => {
     evento.preventDefault();
     setError("");
+    const nuevosErrores: Record<string, string> = {};
+    const nombreLimpio = nombreCliente.trim();
+    const emailLimpio = emailCliente.trim().toLocaleLowerCase("es");
+    const telefonoLimpio = telefonoCliente.trim();
+    const digitosTelefono = telefonoLimpio.replace(/\D/g, "");
+
+    if (!nombreLimpio) nuevosErrores.nombre = "Ingrese el nombre del cliente.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpio)) {
+      nuevosErrores.email = "Ingrese un correo electrónico válido.";
+    }
+    if (digitosTelefono.length < 8 || digitosTelefono.length > 15) {
+      nuevosErrores.telefono = "Ingrese un teléfono válido de 8 a 15 dígitos.";
+    }
+    if (Object.keys(nuevosErrores).length) {
+      setErroresCliente(nuevosErrores);
+      return;
+    }
+    setErroresCliente({});
 
     if (!pelicula || !salaId || !funcion) {
       setError("Seleccione película, sala y función.");
@@ -71,6 +93,11 @@ export default function FormularioReserva() {
         cantidadBoletos: cantidad,
         total,
         fechaCreacion: new Date().toISOString(),
+        cliente: {
+          nombre: nombreLimpio,
+          email: emailLimpio,
+          telefono: telefonoLimpio,
+        },
       }),
     );
     dispatch(ocuparAsientosFuncion({ funcionId, asientosIds }));
@@ -81,6 +108,9 @@ export default function FormularioReserva() {
     setSalaId("");
     setPeliculaCodigo("");
     setCantidad(1);
+    setNombreCliente("");
+    setEmailCliente("");
+    setTelefonoCliente("");
   };
 
   const historial = useMemo(() => [...reservas].reverse(), [reservas]);
@@ -114,6 +144,60 @@ export default function FormularioReserva() {
             <div><p className="eyebrow">Paso 1</p><h3>Datos de la reserva</h3></div>
           </div>
           {error && <p className="alerta-error" role="alert">{error}</p>}
+
+          <div className="subtitulo-formulario">
+            <span aria-hidden="true">👤</span>
+            <div><strong>Información del cliente</strong><small>Datos de contacto para la reserva</small></div>
+          </div>
+
+          <label className={`campo ${erroresCliente.nombre ? "campo-error" : ""}`}>
+            <span>Nombre completo</span>
+            <input
+              autoComplete="name"
+              placeholder="Nombre del cliente"
+              value={nombreCliente}
+              onChange={(evento) => {
+                setNombreCliente(evento.target.value);
+                setErroresCliente((actual) => ({ ...actual, nombre: "" }));
+              }}
+            />
+            {erroresCliente.nombre && <small role="alert">{erroresCliente.nombre}</small>}
+          </label>
+
+          <label className={`campo ${erroresCliente.email ? "campo-error" : ""}`}>
+            <span>Correo electrónico</span>
+            <input
+              autoComplete="email"
+              placeholder="cliente@correo.com"
+              type="email"
+              value={emailCliente}
+              onChange={(evento) => {
+                setEmailCliente(evento.target.value);
+                setErroresCliente((actual) => ({ ...actual, email: "" }));
+              }}
+            />
+            {erroresCliente.email && <small role="alert">{erroresCliente.email}</small>}
+          </label>
+
+          <label className={`campo ${erroresCliente.telefono ? "campo-error" : ""}`}>
+            <span>Teléfono</span>
+            <input
+              autoComplete="tel"
+              placeholder="0000-0000"
+              type="tel"
+              value={telefonoCliente}
+              onChange={(evento) => {
+                setTelefonoCliente(evento.target.value);
+                setErroresCliente((actual) => ({ ...actual, telefono: "" }));
+              }}
+            />
+            {erroresCliente.telefono && <small role="alert">{erroresCliente.telefono}</small>}
+          </label>
+
+          <div className="subtitulo-formulario datos-funcion-subtitulo">
+            <span aria-hidden="true">🎟️</span>
+            <div><strong>Datos de la función</strong><small>Selecciona la película y los boletos</small></div>
+          </div>
 
           <label className="campo">
             <span>Película</span>
@@ -238,10 +322,11 @@ export default function FormularioReserva() {
         {historial.length ? (
           <div className="tabla-contenedor">
             <table>
-              <thead><tr><th>Película</th><th>Sala</th><th>Asientos</th><th>Boletos</th><th>Total</th><th>Fecha</th></tr></thead>
+              <thead><tr><th>Cliente</th><th>Película</th><th>Sala</th><th>Asientos</th><th>Boletos</th><th>Total</th><th>Fecha</th></tr></thead>
               <tbody>
                 {historial.map((reserva) => (
                   <tr key={reserva.id}>
+                    <td><strong>{reserva.cliente?.nombre ?? "Cliente no registrado"}</strong><small>{reserva.cliente?.email}</small></td>
                     <td><strong>{nombrePelicula(reserva.peliculaCodigo)}</strong></td>
                     <td>{nombreSala(reserva.salaId)}</td>
                     <td>{reserva.asientosIds.join(", ")}</td>

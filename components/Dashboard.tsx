@@ -84,6 +84,11 @@ export default function Dashboard() {
     peliculas.find((pelicula) => pelicula.codigo === codigo)?.nombre ?? codigo;
   const nombreSala = (id: string) =>
     salas.find((sala) => sala.id === id)?.nombre ?? id;
+  const ventasRecientes = [...reservas]
+    .sort((reservaA, reservaB) =>
+      reservaB.fechaCreacion.localeCompare(reservaA.fechaCreacion),
+    )
+    .slice(0, 8);
 
   const tarjetas = [
     ["Películas", peliculas.length, "🎞️"],
@@ -205,6 +210,49 @@ export default function Dashboard() {
           )}
         </article>
       </div>
+
+      <article className="historial-ventas-dashboard" aria-labelledby="historial-ventas-titulo">
+        <div className="grafica-encabezado">
+          <div>
+            <p className="eyebrow">Registro comercial</p>
+            <h3 id="historial-ventas-titulo">Historial de ventas</h3>
+          </div>
+          <span>{reservas.length} ventas</span>
+        </div>
+
+        {ventasRecientes.length ? (
+          <div className="tabla-contenedor">
+            <table>
+              <thead>
+                <tr><th>Cliente</th><th>Película</th><th>Boletos</th><th>Asientos</th><th>Total</th><th>Fecha</th></tr>
+              </thead>
+              <tbody>
+                {ventasRecientes.map((venta) => (
+                  <tr key={venta.id}>
+                    <td>
+                      <strong>{venta.cliente?.nombre ?? "Cliente no registrado"}</strong>
+                      <small>{venta.cliente?.email ?? venta.cliente?.telefono}</small>
+                    </td>
+                    <td>{nombrePelicula(venta.peliculaCodigo)}</td>
+                    <td>{venta.cantidadBoletos}</td>
+                    <td>{venta.asientosIds.join(", ")}</td>
+                    <td><strong>${venta.total.toFixed(2)}</strong></td>
+                    <td>{new Date(venta.fechaCreacion).toLocaleString("es-SV")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="historial-vacio">
+            <span aria-hidden="true">🧾</span>
+            <div>
+              <strong>Aún no hay ventas registradas</strong>
+              <p>Las reservas confirmadas aparecerán aquí con los datos del cliente.</p>
+            </div>
+          </div>
+        )}
+      </article>
     </section>
   );
 }
