@@ -6,16 +6,17 @@ import GestionFunciones from "./GestionFunciones";
 import GestionPeliculas from "./GestionPeliculas";
 import FormularioReserva from "./FormularioReserva";
 
-type Seccion = "peliculas" | "funciones" | "reservas";
+type Seccion = "dashboard" | "peliculas" | "funciones" | "reservas";
 
 const opciones: { id: Seccion; etiqueta: string; icono: string }[] = [
+  { id: "dashboard", etiqueta: "Dashboard", icono: "▦" },
   { id: "peliculas", etiqueta: "Películas", icono: "🎬" },
   { id: "funciones", etiqueta: "Funciones", icono: "🕒" },
   { id: "reservas", etiqueta: "Reservas", icono: "🎟️" },
 ];
 
 export default function AplicacionCine() {
-  const [seccion, setSeccion] = useState<Seccion>("peliculas");
+  const [seccion, setSeccion] = useState<Seccion>("dashboard");
 
   return (
     <div className="app-shell">
@@ -42,7 +43,7 @@ export default function AplicacionCine() {
       </header>
 
       <main>
-        <Dashboard />
+        {seccion === "dashboard" && <Dashboard />}
         {seccion === "peliculas" && <GestionPeliculas />}
         {seccion === "funciones" && <GestionFunciones />}
         {seccion === "reservas" && <FormularioReserva />}

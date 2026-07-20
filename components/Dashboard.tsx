@@ -2,10 +2,13 @@
 
 import { useAppSelector } from "@/redux/hooks";
 
+const instanteInicial = Date.now();
+
 export default function Dashboard() {
   const peliculas = useAppSelector((state) => state.peliculas.items);
   const funciones = useAppSelector((state) => state.funciones.items);
   const reservas = useAppSelector((state) => state.reservas.items);
+  const salas = useAppSelector((state) => state.salas.items);
 
   const boletosVendidos = reservas.reduce(
     (total, reserva) => total + reserva.cantidadBoletos,
@@ -64,6 +67,24 @@ export default function Dashboard() {
     ...ventasPorPelicula.map((venta) => venta.boletos),
   );
 
+  const proximasFunciones = funciones
+    .filter(
+      (funcion) =>
+        Date.parse(`${funcion.fecha}T${funcion.hora}`) >= instanteInicial,
+    )
+    .toSorted(
+      (funcionA, funcionB) =>
+        `${funcionA.fecha}T${funcionA.hora}`.localeCompare(
+          `${funcionB.fecha}T${funcionB.hora}`,
+        ),
+    )
+    .slice(0, 4);
+
+  const nombrePelicula = (codigo: string) =>
+    peliculas.find((pelicula) => pelicula.codigo === codigo)?.nombre ?? codigo;
+  const nombreSala = (id: string) =>
+    salas.find((sala) => sala.id === id)?.nombre ?? id;
+
   const tarjetas = [
     ["Películas", peliculas.length, "🎞️"],
     ["Funciones", funciones.length, "🕒"],
@@ -93,49 +114,97 @@ export default function Dashboard() {
           </article>
         ))}
       </div>
-      <article className="grafica-ventas" aria-labelledby="grafica-ventas-titulo">
-        <div className="grafica-encabezado">
-          <div>
-            <p className="eyebrow">Rendimiento comercial</p>
-            <h3 id="grafica-ventas-titulo">Boletos vendidos por película</h3>
-          </div>
-          <span>Top {Math.max(ventasPorPelicula.length, 1)}</span>
-        </div>
-
-        {ventasPorPelicula.length ? (
-          <div
-            className="barras-ventas"
-            role="img"
-            aria-label="Gráfica horizontal de boletos vendidos e ingresos por película"
-          >
-            {ventasPorPelicula.map((venta) => (
-              <div className="fila-venta" key={venta.codigo}>
-                <div className="etiqueta-venta">
-                  <strong>{venta.nombre}</strong>
-                  <small>${venta.ingresos.toFixed(2)} en ingresos</small>
-                </div>
-                <div className="carril-venta">
-                  <div
-                    className="barra-venta"
-                    style={{ width: `${(venta.boletos / mayorVenta) * 100}%` }}
-                  />
-                </div>
-                <strong className="valor-venta">
-                  {venta.boletos} {venta.boletos === 1 ? "boleto" : "boletos"}
-                </strong>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grafica-vacia">
-            <span aria-hidden="true">▥</span>
+      <div className="dashboard-detalle-grid">
+        <article className="grafica-ventas" aria-labelledby="grafica-ventas-titulo">
+          <div className="grafica-encabezado">
             <div>
-              <strong>La gráfica aparecerá con la primera venta</strong>
-              <p>Las reservas confirmadas se agruparán automáticamente por película.</p>
+              <p className="eyebrow">Rendimiento comercial</p>
+              <h3 id="grafica-ventas-titulo">Boletos vendidos por película</h3>
             </div>
+            <span>Top {Math.max(ventasPorPelicula.length, 1)}</span>
           </div>
-        )}
-      </article>
+
+          {ventasPorPelicula.length ? (
+            <div
+              className="barras-ventas"
+              role="img"
+              aria-label="Gráfica horizontal de boletos vendidos e ingresos por película"
+            >
+              {ventasPorPelicula.map((venta) => (
+                <div className="fila-venta" key={venta.codigo}>
+                  <div className="etiqueta-venta">
+                    <strong>{venta.nombre}</strong>
+                    <small>${venta.ingresos.toFixed(2)} en ingresos</small>
+                  </div>
+                  <div className="carril-venta">
+                    <div
+                      className="barra-venta"
+                      style={{ width: `${(venta.boletos / mayorVenta) * 100}%` }}
+                    />
+                  </div>
+                  <strong className="valor-venta">
+                    {venta.boletos} {venta.boletos === 1 ? "boleto" : "boletos"}
+                  </strong>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grafica-vacia">
+              <span aria-hidden="true">▥</span>
+              <div>
+                <strong>La gráfica aparecerá con la primera venta</strong>
+                <p>Las reservas confirmadas se agruparán automáticamente por película.</p>
+              </div>
+            </div>
+          )}
+        </article>
+
+        <article
+          className="proximas-funciones"
+          aria-labelledby="proximas-funciones-titulo"
+        >
+          <div className="grafica-encabezado">
+            <div>
+              <p className="eyebrow">Agenda</p>
+              <h3 id="proximas-funciones-titulo">Próximas funciones</h3>
+            </div>
+            <span>{funciones.length} total</span>
+          </div>
+
+          {proximasFunciones.length ? (
+            <ol className="lista-proximas-funciones">
+              {proximasFunciones.map((funcion) => {
+                const asientosLibres = funcion.asientos.filter(
+                  (asiento) => asiento.estado !== "ocupado",
+                ).length;
+                return (
+                  <li key={funcion.id}>
+                    <time dateTime={`${funcion.fecha}T${funcion.hora}`}>
+                      <strong>
+                        {new Date(`${funcion.fecha}T12:00:00`).toLocaleDateString(
+                          "es-SV",
+                          { day: "2-digit", month: "short" },
+                        )}
+                      </strong>
+                      <span>{funcion.hora}</span>
+                    </time>
+                    <div>
+                      <strong>{nombrePelicula(funcion.peliculaCodigo)}</strong>
+                      <small>{nombreSala(funcion.salaId)} · {asientosLibres} libres</small>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          ) : (
+            <div className="funciones-vacias">
+              <span aria-hidden="true">🕒</span>
+              <strong>No hay funciones programadas</strong>
+              <p>Las próximas funciones aparecerán aquí.</p>
+            </div>
+          )}
+        </article>
+      </div>
     </section>
   );
 }
