@@ -35,6 +35,35 @@ export default function Dashboard() {
     peliculas.find((pelicula) => pelicula.codigo === codigoMasReservado)?.nombre ??
     "Sin reservas";
 
+  const ventasPorPelicula = Object.entries(
+    reservas.reduce<Record<string, { boletos: number; ingresos: number }>>(
+      (ventas, reserva) => {
+        const actual = ventas[reserva.peliculaCodigo] ?? {
+          boletos: 0,
+          ingresos: 0,
+        };
+        ventas[reserva.peliculaCodigo] = {
+          boletos: actual.boletos + reserva.cantidadBoletos,
+          ingresos: actual.ingresos + reserva.total,
+        };
+        return ventas;
+      },
+      {},
+    ),
+  )
+    .map(([codigo, venta]) => ({
+      ...venta,
+      codigo,
+      nombre:
+        peliculas.find((pelicula) => pelicula.codigo === codigo)?.nombre ?? codigo,
+    }))
+    .sort((ventaA, ventaB) => ventaB.boletos - ventaA.boletos)
+    .slice(0, 6);
+  const mayorVenta = Math.max(
+    1,
+    ...ventasPorPelicula.map((venta) => venta.boletos),
+  );
+
   const tarjetas = [
     ["Películas", peliculas.length, "🎞️"],
     ["Funciones", funciones.length, "🕒"],
@@ -64,6 +93,49 @@ export default function Dashboard() {
           </article>
         ))}
       </div>
+      <article className="grafica-ventas" aria-labelledby="grafica-ventas-titulo">
+        <div className="grafica-encabezado">
+          <div>
+            <p className="eyebrow">Rendimiento comercial</p>
+            <h3 id="grafica-ventas-titulo">Boletos vendidos por película</h3>
+          </div>
+          <span>Top {Math.max(ventasPorPelicula.length, 1)}</span>
+        </div>
+
+        {ventasPorPelicula.length ? (
+          <div
+            className="barras-ventas"
+            role="img"
+            aria-label="Gráfica horizontal de boletos vendidos e ingresos por película"
+          >
+            {ventasPorPelicula.map((venta) => (
+              <div className="fila-venta" key={venta.codigo}>
+                <div className="etiqueta-venta">
+                  <strong>{venta.nombre}</strong>
+                  <small>${venta.ingresos.toFixed(2)} en ingresos</small>
+                </div>
+                <div className="carril-venta">
+                  <div
+                    className="barra-venta"
+                    style={{ width: `${(venta.boletos / mayorVenta) * 100}%` }}
+                  />
+                </div>
+                <strong className="valor-venta">
+                  {venta.boletos} {venta.boletos === 1 ? "boleto" : "boletos"}
+                </strong>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grafica-vacia">
+            <span aria-hidden="true">▥</span>
+            <div>
+              <strong>La gráfica aparecerá con la primera venta</strong>
+              <p>Las reservas confirmadas se agruparán automáticamente por película.</p>
+            </div>
+          </div>
+        )}
+      </article>
     </section>
   );
 }

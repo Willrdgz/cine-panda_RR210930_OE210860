@@ -46,6 +46,23 @@ footer { padding: 24px; color: var(--muted); text-align: center; border-top: 1px
 .estadistica-icono { display: grid; flex: 0 0 34px; place-items: center; width: 34px; height: 34px; color: var(--primario); border-radius: 11px; background: var(--primario-suave); }
 .tarjeta-estadistica p { margin: 0 0 5px; color: var(--muted); font-size: 11px; line-height: 1.2; }
 .tarjeta-estadistica strong { display: block; max-width: 115px; overflow: hidden; font-size: 18px; text-overflow: ellipsis; white-space: nowrap; }
+.grafica-ventas { margin-top: 15px; padding: 22px 24px; border: 1px solid var(--borde); border-radius: 20px; background: var(--panel); box-shadow: var(--sombra); }
+.grafica-encabezado { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+.grafica-encabezado h3 { margin: 4px 0 0; font-size: 20px; }
+.grafica-encabezado > span { padding: 7px 10px; color: var(--muted); font-size: 11px; font-weight: 800; border-radius: 999px; background: #f3f3f7; }
+.barras-ventas { display: grid; gap: 15px; }
+.fila-venta { display: grid; grid-template-columns: minmax(140px, 220px) minmax(180px, 1fr) 92px; align-items: center; gap: 16px; }
+.etiqueta-venta { min-width: 0; }
+.etiqueta-venta strong, .etiqueta-venta small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.etiqueta-venta strong { margin-bottom: 4px; font-size: 13px; }
+.etiqueta-venta small { color: var(--muted); font-size: 11px; }
+.carril-venta { height: 15px; overflow: hidden; border-radius: 999px; background: #ececf3; }
+.barra-venta { min-width: 8px; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--primario), #8d78ff); }
+.valor-venta { font-size: 12px; text-align: right; white-space: nowrap; }
+.grafica-vacia { display: flex; align-items: center; justify-content: center; gap: 14px; min-height: 118px; color: var(--muted); text-align: left; border: 1px dashed #d6d8e2; border-radius: 14px; background: #fafafd; }
+.grafica-vacia > span { color: var(--primario); font-size: 27px; }
+.grafica-vacia strong { display: block; margin-bottom: 4px; color: var(--texto); }
+.grafica-vacia p { margin: 0; font-size: 12px; }
 
 .modulo { animation: aparecer .24s ease; }
 @keyframes aparecer { from { opacity: 0; transform: translateY(8px); } }
@@ -132,12 +149,17 @@ td small { margin-top: 3px; color: var(--muted); }
   main { width: min(100% - 24px, 1280px); padding-top: 24px; }
   .titulo-seccion { align-items: flex-start; flex-direction: column; gap: 10px; }
   .tarjetas-dashboard { grid-template-columns: repeat(7, 155px); }
+  .fila-venta { grid-template-columns: minmax(110px, 160px) 1fr; gap: 10px; }
+  .valor-venta { grid-column: 2; margin-top: -7px; text-align: left; }
   .reserva-layout { grid-template-columns: 1fr; }
 }
 @media (max-width: 540px) {
   .formulario, .panel { padding: 17px; border-radius: 16px; }
   .rejilla-formulario, .rejilla-formulario.cuatro, .filtros { grid-template-columns: 1fr; }
   .mapa-asientos { grid-template-columns: repeat(5, 43px); gap: 9px; }
+  .grafica-ventas { padding: 18px 16px; }
+  .fila-venta { grid-template-columns: 1fr; }
+  .valor-venta { grid-column: 1; margin-top: -7px; text-align: right; }
   .asiento { width: 43px; }
   .leyenda { flex-wrap: wrap; gap: 12px; }
 }
