@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import type { Asiento } from "@/types/asiento";
 import type { Sala } from "@/types/sala";
 
@@ -24,55 +24,10 @@ const initialState: SalasState = {
   })),
 };
 
-interface AsientoPayload {
-  salaId: string;
-  asientoId: string;
-}
-
-interface OcuparAsientosPayload {
-  salaId: string;
-  asientosIds: string[];
-}
-
 const salasSlice = createSlice({
   name: "salas",
   initialState,
-  reducers: {
-    alternarSeleccionAsiento: (
-      state,
-      action: PayloadAction<AsientoPayload>,
-    ) => {
-      const sala = state.items.find(({ id }) => id === action.payload.salaId);
-      const asiento = sala?.asientos.find(
-        ({ id }) => id === action.payload.asientoId,
-      );
-
-      if (!asiento || asiento.estado === "ocupado") return;
-
-      asiento.estado =
-        asiento.estado === "seleccionado" ? "disponible" : "seleccionado";
-    },
-    limpiarSeleccion: (state, action: PayloadAction<string>) => {
-      const sala = state.items.find(({ id }) => id === action.payload);
-
-      sala?.asientos.forEach((asiento) => {
-        if (asiento.estado === "seleccionado") {
-          asiento.estado = "disponible";
-        }
-      });
-    },
-    ocuparAsientos: (state, action: PayloadAction<OcuparAsientosPayload>) => {
-      const sala = state.items.find(({ id }) => id === action.payload.salaId);
-
-      sala?.asientos.forEach((asiento) => {
-        if (action.payload.asientosIds.includes(asiento.id)) {
-          asiento.estado = "ocupado";
-        }
-      });
-    },
-  },
+  reducers: {},
 });
 
-export const { alternarSeleccionAsiento, limpiarSeleccion, ocuparAsientos } =
-  salasSlice.actions;
 export default salasSlice.reducer;

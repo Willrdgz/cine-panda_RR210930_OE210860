@@ -6,16 +6,15 @@ export default function Dashboard() {
   const peliculas = useAppSelector((state) => state.peliculas.items);
   const funciones = useAppSelector((state) => state.funciones.items);
   const reservas = useAppSelector((state) => state.reservas.items);
-  const salas = useAppSelector((state) => state.salas.items);
 
   const boletosVendidos = reservas.reduce(
     (total, reserva) => total + reserva.cantidadBoletos,
     0,
   );
   const ingresos = reservas.reduce((total, reserva) => total + reserva.total, 0);
-  const asientos = salas.flatMap((sala) => sala.asientos);
+  const asientos = funciones.flatMap((funcion) => funcion.asientos);
   const disponibles = asientos.filter(
-    (asiento) => asiento.estado !== "ocupado",
+    (asiento) => asiento.estado === "disponible",
   ).length;
   const ocupados = asientos.filter(
     (asiento) => asiento.estado === "ocupado",
