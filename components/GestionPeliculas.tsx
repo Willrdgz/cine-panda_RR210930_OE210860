@@ -24,11 +24,18 @@ export default function GestionPeliculas() {
   const peliculasFiltradas = useMemo(() => {
     const termino = busqueda.trim().toLocaleLowerCase("es");
     return peliculas.filter((pelicula) => {
-      const sala = salas.find(({ id }) => id === pelicula.salaId)?.nombre ?? "";
-      const coincideBusqueda = !termino || [pelicula.nombre, pelicula.genero, pelicula.clasificacion, sala].some((valor) => valor.toLocaleLowerCase("es").includes(termino));
-      return coincideBusqueda && (!filtros.genero || pelicula.genero === filtros.genero) && (!filtros.clasificacion || pelicula.clasificacion === filtros.clasificacion) && (!filtros.sala || pelicula.salaId === filtros.sala) && (!filtros.estado || pelicula.estado === filtros.estado);
+      const funcionesPelicula = funciones.filter((funcion) => funcion.peliculaCodigo === pelicula.codigo);
+      const nombresSalas = funcionesPelicula.map((funcion) => salas.find(({ id }) => id === funcion.salaId)?.nombre ?? "");
+      const coincideBusqueda = !termino || [pelicula.nombre, pelicula.genero, pelicula.clasificacion, ...nombresSalas].some((valor) => valor.toLocaleLowerCase("es").includes(termino));
+      return coincideBusqueda && (!filtros.genero || pelicula.genero === filtros.genero) && (!filtros.clasificacion || pelicula.clasificacion === filtros.clasificacion) && (!filtros.sala || funcionesPelicula.some((funcion) => funcion.salaId === filtros.sala)) && (!filtros.estado || pelicula.estado === filtros.estado);
     });
-  }, [busqueda, filtros, peliculas, salas]);
+  }, [busqueda, filtros, funciones, peliculas, salas]);
+
+  const obtenerSalasProgramadas = (codigoPelicula: string) => {
+    const ids = new Set(funciones.filter((funcion) => funcion.peliculaCodigo === codigoPelicula).map((funcion) => funcion.salaId));
+    const nombres = [...ids].map((id) => salas.find((sala) => sala.id === id)?.nombre ?? id);
+    return nombres.length ? nombres.join(", ") : "Sin funciones";
+  };
 
   const guardar = (pelicula: Pelicula) => {
     dispatch(editar ? editarPelicula(pelicula) : agregarPelicula(pelicula));
@@ -51,11 +58,11 @@ export default function GestionPeliculas() {
     <section className="modulo">
       <div className="titulo-seccion"><div><p className="eyebrow">Catálogo</p><h2>Gestión de películas</h2><p>Registra, actualiza y encuentra las películas del cine.</p></div><span className="contador">{peliculas.length} registradas</span></div>
       {mensaje && <div className="mensaje" role="status">{mensaje}<button onClick={() => setMensaje("")} aria-label="Cerrar mensaje">×</button></div>}
-      <FormularioPelicula key={editar?.codigo ?? "nueva"} peliculaEditar={editar} codigosExistentes={peliculas.map((p) => p.codigo)} salas={salas} alGuardar={guardar} alCancelar={() => setEditar(null)} />
+      <FormularioPelicula key={editar?.codigo ?? "nueva"} peliculaEditar={editar} codigosExistentes={peliculas.map((p) => p.codigo)} alGuardar={guardar} alCancelar={() => setEditar(null)} />
       <div className="panel">
         <Buscador valor={busqueda} alCambiar={setBusqueda} />
         <Filtros {...filtros} generos={[...new Set(peliculas.map((p) => p.genero))]} clasificaciones={[...new Set(peliculas.map((p) => p.clasificacion))]} salas={salas} alCambiar={(campo, valor) => setFiltros((actual) => ({ ...actual, [campo]: valor }))} alLimpiar={() => { setFiltros(filtrosIniciales); setBusqueda(""); }} />
-        <TablaPeliculas peliculas={peliculasFiltradas} obtenerSala={(id) => salas.find((s) => s.id === id)?.nombre ?? id} alEditar={(pelicula) => { setEditar(pelicula); window.scrollTo({ top: 360, behavior: "smooth" }); }} alEliminar={eliminar} />
+        <TablaPeliculas peliculas={peliculasFiltradas} obtenerSalas={obtenerSalasProgramadas} alEditar={(pelicula) => { setEditar(pelicula); window.scrollTo({ top: 360, behavior: "smooth" }); }} alEliminar={eliminar} />
       </div>
     </section>
   );

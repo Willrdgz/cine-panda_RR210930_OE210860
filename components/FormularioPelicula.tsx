@@ -11,7 +11,6 @@ type DatosFormulario = Omit<Pelicula, "duracion" | "precio"> & {
 interface FormularioPeliculaProps {
   peliculaEditar: Pelicula | null;
   codigosExistentes: string[];
-  salas: { id: string; nombre: string }[];
   alGuardar: (pelicula: Pelicula) => void;
   alCancelar: () => void;
 }
@@ -22,7 +21,6 @@ const datosIniciales: DatosFormulario = {
   genero: "",
   duracion: "",
   clasificacion: "",
-  salaId: "",
   precio: "",
   estado: "disponible",
 };
@@ -30,7 +28,6 @@ const datosIniciales: DatosFormulario = {
 export default function FormularioPelicula({
   peliculaEditar,
   codigosExistentes,
-  salas,
   alGuardar,
   alCancelar,
 }: FormularioPeliculaProps) {
@@ -68,7 +65,6 @@ export default function FormularioPelicula({
       nuevosErrores.duracion = "La duración debe ser mayor que cero.";
     }
     if (!datos.clasificacion) nuevosErrores.clasificacion = "Seleccione una clasificación.";
-    if (!datos.salaId) nuevosErrores.salaId = "Seleccione una sala.";
     if (!Number.isFinite(precio) || precio < 0) {
       nuevosErrores.precio = "El precio no puede ser negativo.";
     }
@@ -84,7 +80,6 @@ export default function FormularioPelicula({
       genero: datos.genero.trim(),
       duracion,
       clasificacion: datos.clasificacion,
-      salaId: datos.salaId,
       precio,
       estado: datos.estado,
     });
@@ -118,12 +113,6 @@ export default function FormularioPelicula({
           <select value={datos.clasificacion} onChange={(e) => cambiar("clasificacion", e.target.value)}>
             <option value="">Seleccione</option>
             {['A', 'B', 'B15', 'C', 'D'].map((valor) => <option key={valor}>{valor}</option>)}
-          </select>
-        </Campo>
-        <Campo etiqueta="Sala asignada" error={errores.salaId}>
-          <select value={datos.salaId} onChange={(e) => cambiar("salaId", e.target.value)}>
-            <option value="">Seleccione</option>
-            {salas.map((sala) => <option key={sala.id} value={sala.id}>{sala.nombre}</option>)}
           </select>
         </Campo>
         <Campo etiqueta="Precio de entrada ($)" error={errores.precio}>

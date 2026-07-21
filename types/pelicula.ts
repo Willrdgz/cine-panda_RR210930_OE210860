@@ -6,7 +6,6 @@ export interface Pelicula {
   genero: string;
   duracion: number;
   clasificacion: string;
-  salaId: string;
   precio: number;
   estado: EstadoPelicula;
 }
