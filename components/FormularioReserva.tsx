@@ -10,6 +10,15 @@ import {
 import { confirmarReserva } from "@/redux/slices/reservasSlice";
 import MapaAsientos from "./MapaAsientos";
 
+interface ReservaExitosa {
+  cliente: string;
+  pelicula: string;
+  sala: string;
+  funcion: string;
+  asientos: string[];
+  total: number;
+}
+
 export default function FormularioReserva() {
   const dispatch = useAppDispatch();
   const peliculas = useAppSelector((state) => state.peliculas.items);
@@ -23,7 +32,7 @@ export default function FormularioReserva() {
   const [nombreCliente, setNombreCliente] = useState("");
   const [emailCliente, setEmailCliente] = useState("");
   const [telefonoCliente, setTelefonoCliente] = useState("");
-  const [mensaje, setMensaje] = useState("");
+  const [reservaExitosa, setReservaExitosa] = useState<ReservaExitosa | null>(null);
   const [error, setError] = useState("");
   const [erroresCliente, setErroresCliente] = useState<Record<string, string>>({});
 
@@ -101,9 +110,14 @@ export default function FormularioReserva() {
       }),
     );
     dispatch(ocuparAsientosFuncion({ funcionId, asientosIds }));
-    setMensaje(
-      `Reserva confirmada: ${asientosIds.join(", ")} · Total $${total.toFixed(2)}`,
-    );
+    setReservaExitosa({
+      cliente: nombreLimpio,
+      pelicula: pelicula.nombre,
+      sala: salas.find((salaActual) => salaActual.id === salaId)?.nombre ?? salaId,
+      funcion: `${new Date(`${funcion.fecha}T12:00:00`).toLocaleDateString("es-SV")} · ${funcion.hora}`,
+      asientos: asientosIds,
+      total,
+    });
     setFuncionId("");
     setSalaId("");
     setPeliculaCodigo("");
@@ -130,13 +144,6 @@ export default function FormularioReserva() {
         </div>
         <span className="contador">{reservas.length} reservas</span>
       </div>
-
-      {mensaje && (
-        <div className="mensaje" role="status">
-          {mensaje}
-          <button onClick={() => setMensaje("")} aria-label="Cerrar mensaje">×</button>
-        </div>
-      )}
 
       <form className="reserva-layout" onSubmit={confirmar}>
         <div className="formulario reserva-datos">
@@ -342,6 +349,36 @@ export default function FormularioReserva() {
           <p className="texto-muted">Todavía no se han confirmado reservas.</p>
         )}
       </div>
+
+      {reservaExitosa && (
+        <div className="modal-fondo" role="presentation" onMouseDown={() => setReservaExitosa(null)}>
+          <section
+            aria-describedby="descripcion-reserva-exitosa"
+            aria-labelledby="titulo-reserva-exitosa"
+            aria-modal="true"
+            className="modal-confirmacion modal-exito"
+            onMouseDown={(evento) => evento.stopPropagation()}
+            role="dialog"
+          >
+            <div className="modal-icono modal-icono-exito" aria-hidden="true">✓</div>
+            <p className="eyebrow">Confirmación</p>
+            <h3 id="titulo-reserva-exitosa">¡Reserva exitosa!</h3>
+            <p id="descripcion-reserva-exitosa" className="modal-descripcion">
+              La reserva de <strong>{reservaExitosa.cliente}</strong> fue registrada correctamente.
+            </p>
+            <div className="modal-detalle">
+              <span>🎬 {reservaExitosa.pelicula}</span>
+              <span>📍 {reservaExitosa.sala}</span>
+              <span>📅 {reservaExitosa.funcion}</span>
+              <span>💺 Asientos: {reservaExitosa.asientos.join(", ")}</span>
+              <span>💳 Total pagado: ${reservaExitosa.total.toFixed(2)}</span>
+            </div>
+            <button className="boton-primario modal-boton-exito" onClick={() => setReservaExitosa(null)} type="button">
+              Entendido
+            </button>
+          </section>
+        </div>
+      )}
     </section>
   );
 }

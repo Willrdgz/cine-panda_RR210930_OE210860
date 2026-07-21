@@ -164,6 +164,8 @@ td small { margin-top: 3px; color: var(--muted); }
 .modal-fondo { position: fixed; z-index: 1000; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(19, 18, 32, .62); backdrop-filter: blur(4px); }
 .modal-confirmacion { width: min(100%, 440px); padding: 28px; text-align: center; border: 1px solid rgba(198, 63, 77, .18); border-radius: 22px; background: white; box-shadow: 0 24px 70px rgba(19, 18, 32, .28); animation: aparecer-modal .18s ease-out; }
 .modal-icono { display: grid; place-items: center; width: 58px; height: 58px; margin: 0 auto 16px; font-size: 25px; border-radius: 18px; background: #fff0f1; }
+.modal-exito { border-color: rgba(25, 145, 99, .2); }
+.modal-icono-exito { color: white; font-size: 31px; font-weight: 900; background: var(--exito); box-shadow: 0 9px 22px rgba(25, 145, 99, .24); }
 .modal-confirmacion h3 { margin: 5px 0 10px; font-size: 24px; }
 .modal-descripcion { margin: 0 auto 18px; color: var(--muted); line-height: 1.55; }
 .modal-descripcion strong { color: var(--texto); }
@@ -172,6 +174,8 @@ td small { margin-top: 3px; color: var(--muted); }
 .modal-acciones button { margin: 0; }
 .boton-eliminar { min-height: 42px; padding: 0 18px; color: white; font-weight: 800; border: 1px solid var(--peligro); border-radius: 10px; background: var(--peligro); }
 .boton-eliminar:hover { background: #a92f3c; }
+.modal-boton-exito { width: 100%; margin-top: 22px; background: var(--exito); border-color: var(--exito); }
+.modal-boton-exito:hover { background: #147c55; }
 @keyframes aparecer-modal { from { opacity: 0; transform: translateY(8px) scale(.98); } }
 
 @media (max-width: 1050px) {
