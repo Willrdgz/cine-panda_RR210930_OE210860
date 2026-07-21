@@ -21,6 +21,7 @@ export default function GestionFunciones() {
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [funcionAEliminar, setFuncionAEliminar] = useState<Funcion | null>(null);
 
   const enviar = (evento: FormEvent) => {
     evento.preventDefault();
@@ -88,10 +89,14 @@ export default function GestionFunciones() {
       return;
     }
 
-    if (window.confirm("¿Eliminar esta función?")) {
-      dispatch(eliminarFuncion(funcion.id));
-      setMensaje("Función eliminada.");
-    }
+    setFuncionAEliminar(funcion);
+  };
+
+  const confirmarEliminacion = () => {
+    if (!funcionAEliminar) return;
+    dispatch(eliminarFuncion(funcionAEliminar.id));
+    setMensaje("Función eliminada correctamente.");
+    setFuncionAEliminar(null);
   };
 
   const nombrePelicula = (codigo: string) =>
@@ -229,6 +234,35 @@ export default function GestionFunciones() {
           </div>
         )}
       </div>
+
+      {funcionAEliminar && (
+        <div className="modal-fondo" role="presentation" onMouseDown={() => setFuncionAEliminar(null)}>
+          <section
+            aria-describedby="descripcion-eliminar-funcion"
+            aria-labelledby="titulo-eliminar-funcion"
+            aria-modal="true"
+            className="modal-confirmacion"
+            onMouseDown={(evento) => evento.stopPropagation()}
+            role="dialog"
+          >
+            <div className="modal-icono" aria-hidden="true">🗑️</div>
+            <p className="eyebrow">Confirmar eliminación</p>
+            <h3 id="titulo-eliminar-funcion">¿Eliminar esta función?</h3>
+            <p id="descripcion-eliminar-funcion" className="modal-descripcion">
+              Esta acción eliminará la programación de <strong>{nombrePelicula(funcionAEliminar.peliculaCodigo)}</strong>.
+            </p>
+            <div className="modal-detalle">
+              <span>🎬 {nombrePelicula(funcionAEliminar.peliculaCodigo)}</span>
+              <span>📍 {nombreSala(funcionAEliminar.salaId)}</span>
+              <span>📅 {new Date(`${funcionAEliminar.fecha}T12:00:00`).toLocaleDateString("es-SV")} · {funcionAEliminar.hora}</span>
+            </div>
+            <div className="modal-acciones">
+              <button className="boton-secundario" onClick={() => setFuncionAEliminar(null)} type="button">Cancelar</button>
+              <button className="boton-eliminar" onClick={confirmarEliminacion} type="button">Eliminar función</button>
+            </div>
+          </section>
+        </div>
+      )}
     </section>
   );
 }
